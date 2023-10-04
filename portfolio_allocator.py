@@ -1,4 +1,4 @@
-# The code herein is presented to illustrate two portfolio allocation methods (described below).  Following the imports of relevant libraries, 4 basic inputs are defined:
+# The function below takes 3 arguments:
 # - `cash` is the money to be allocated to investments
 # - `target_pcts` are the set of target allocations specified as proportions that sum to 1 (minus rounding error)
 # - `current_values` are the current values of the investments in the portfolio
