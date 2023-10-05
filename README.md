@@ -1,6 +1,6 @@
 # portfolio_allocator
 
-Optimize the distribution of funds according to a corresponding set of target allocations.
+Calculate the optimal allotments of a lump sum to align a portfolio with its target allocation.  This may be used as an alternative to rebalancing.
 
 ## Description
 
