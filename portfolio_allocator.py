@@ -64,7 +64,7 @@ def portfolio_allocator(cash,current_values,target_pcts):
         money = cash - allocated_cumsum
 
     #calculate the error of the new values
-    df['error2'] = ((df['current_value'] + df['allocate_by_rank']) / (df['current_value'].sum()+cash)) - df['target%']
+    df['error_m1'] = ((df['current_value'] + df['allocate_by_rank']) / (df['current_value'].sum()+cash)) - df['target%']
 
     #make sure the sum of the allocations equals the cash
     assert round(df['allocate_by_rank'].sum()) == cash, "sum of Method 1 allocations does not equal cash"
@@ -86,7 +86,7 @@ def portfolio_allocator(cash,current_values,target_pcts):
     #check to see if method 2 will be useful or not
     b1 = df['deficit'] >= 0
     b2 = df['allocate_by_rank'] > 0
-    if df.loc[b1&b2,'error2'].abs().min() < df.loc[b1&~b2,'error2'].abs().max():
+    if df.loc[b1&b2,'error_m1'].abs().min() < df.loc[b1&~b2,'error_m1'].abs().max():
         print('Method 1 is suboptimal.')
         use_method2 = True
     else:
@@ -113,7 +113,7 @@ def portfolio_allocator(cash,current_values,target_pcts):
         df['allocate_for_minimal_errors'] = df.apply(lambda r: allocations[r['rank']],axis=1)
 
         #Calculate errors based on Method 2 allocations
-        df['error3'] = ((df['current_value'] + df['allocate_for_minimal_errors']) / (df['current_value'].sum()+cash)) - df['target%']
+        df['error_m2'] = ((df['current_value'] + df['allocate_for_minimal_errors']) / (df['current_value'].sum()+cash)) - df['target%']
 
     return df
 
