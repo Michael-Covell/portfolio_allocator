@@ -37,9 +37,9 @@ def portfolio_allocator(cash,current_values,target_pcts):
     df.sort_values(by='rank',inplace=True)
 
     # Reorder columns
-    for label in reversed(('rank','deficit','error','current_value','target_value','current%','target%')):
-        extracted_col = df.pop(label)
-        df.insert(0, label, extracted_col)
+    for col in reversed(('target%','current%','target_value','current_value','rank','deficit','error')):
+            extracted_col = df.pop(col)
+            df.insert(0, col, extracted_col)
 
 
     # Method 1: allocate-by-rank
