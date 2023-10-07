@@ -77,59 +77,55 @@ def portfolio_allocator(cash,current_values,target_pcts):
     #make sure the sum of the allocations equals the cash
     assert round(df['allocate_by_rank'].sum()) == cash, "sum of Method 1 allocations does not equal cash"
 
-    # # Method 2: allocate-for-equal-errors
+    # Method 2: allocate-for-equal-errors
+    
     # Method 1 can lead to suboptimal results.  When allocating cash to elminate deficits, 
     # errors are reduced to zero for investments with the top ranking deficits, 
     # but may remain large for investments with lower ranking deficits.  The optimal result would be a set of allocations that minimizes all errors as much as possible.  
     # 
-    # Method 2 achieves this by calculating the minimum possible error for all investments with a deficit greater than 0,
-    # and then calculating the allocations required to produce those errors.
-
-    # However, Method 2 can return impractical allocations when not needed. 
-    # That is, when all error values for investments with deficits greater than zero 
-    # are minimized by Method 1, Method 2 may return a set of allocations that includes negative numbers. 
-    # Therefore, is it important to examine the error values produced by Method 1 
-    # before proceeding to Method 2.
-
-    #check to see if method 2 will be useful or not
-    b1 = df['deficit'] >= 0
-    b2 = df['allocate_by_rank'] > 0
-    if df.loc[b1&b2,'error_m1'].abs().min() < df.loc[b1&~b2,'error_m1'].abs().max():
-        print('Method 1 is suboptimal.')
-        use_method2 = True
-    else:
-        print("Method 2 is unnecessary and may return an allocation set that includes negative numbers.")
-        use_method2 = False
-
-    if use_method2:
+    # Method 2 achieves this by calculating the minimum possible error 
+    # for all investments with a deficit greater than 0,
+    # and then calculating the allotments required to produce those errors.  
+    # Sometimes, this results in negative allotment values when 1 or more 
+    # investments have a relatively small error in the current portfolio.
+    # To prevent negative values which are impractical allotment values, 
+    # Method 2 iteratively calculates allotments and constant errors for each investment
+    # If any allotment values are negative, the negative allotment term is dropped
+    # from the subsequent calculations and iteration continues.
+    # Iteration ends once the non-negative constraint for allotments is satisfied.
+    
+    cv = df['current_value'].to_list()
+    t_pct = df['target%'].to_list()
+    deficit = df['deficit'].to_list()
+    select_ranks = [i for i in range(len(df)) if deficit[i]>0]
+    iteration = 1
+    success = False
+    
+    while not success:
         #Calculate equal errors
-        #The equation for e is derived from the system of equations presented above
-        cv = df['current_value'].to_list()
-        t_pct = df['target%'].to_list()
-        deficit = df['deficit'].to_list()
-        select_ranks = [i for i in range(len(df)) if deficit[i]>0]
         select_cv = sum([cv[i] for i in select_ranks])
         select_t_pct = sum([t_pct[i] for i in select_ranks])
         select_ranks_cnt = len(select_ranks)
         e = 1/select_ranks_cnt * ((select_cv + cash)/(sum(cv) + cash) - select_t_pct)
-
-        #calculate cash allocations in a dictionary where keys are ranks and values are allocations
-        #the equation for each allocation is derived from the system of equations presented above
-        allocations = {i:((e + t_pct[i])*(sum(cv)+cash)) - cv[i] if i in select_ranks else 0 for i in range(len(df))}
-
-        #create column containing allocations calculated via Method 2
-        df['allocate_for_minimal_errors'] = df.apply(lambda r: allocations[r['rank']],axis=1)
-
-        #Calculate errors based on Method 2 allocations
-        df['error_m2'] = ((df['current_value'] + df['allocate_for_minimal_errors']) / (df['current_value'].sum()+cash)) - df['target%']
-
+    
+        # Calculate cash allocations in a dictionary where keys are ranks and values are allotments
+        # The equation for each allotment is derived from the system of equations presented above
+        allotments = {i:((e + t_pct[i])*(sum(cv)+cash)) - cv[i] if i in select_ranks else 0 for i in range(len(df))}
+        display(allotments)
+    
+        # Check if the non-negative constraint is satisfied
+        if all(val >= 0 for val in allotments.values()):
+            success = True
+        else:
+            select_ranks = [rank for rank,allotment in allotments.items() if allotment > 0]
+            iteration += 1
+    
+    # Create column containing allotments calculated via Method 2
+    df['allocate_for_minimal_errors'] = df.apply(lambda r: allotments[r['rank']],axis=1)
+    
+    # Calculate errors based on Method 2 allotments
+    df['error_m2'] = ((df['current_value'] + df['allocate_for_minimal_errors']) / (df['current_value'].sum()+cash)) - df['target%']
+  
     return df
 
-    # When the portfolio size and allocation amounts are small, 
-    # the difference between optimal and suboptimal allocations may be negligible.  
-    # However, when large, the difference may have significant consequences for 
-    # larger portfolios with larger allocation amounts.  
-    # In high stakes situations such as hedge funds, company-owned assests, 
-    # or government budget distributions, or philanthropic initiatives, 
-    # allocation methods could impact overall portfolio or program performance 
-    # and the recipients of the funding determined by the allocation method.
+
