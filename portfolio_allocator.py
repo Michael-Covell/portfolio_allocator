@@ -13,24 +13,27 @@ import numpy as np
 
 def portfolio_allocator(cash,current_values,target_pcts):
     # Data Preparation
-    # the sum of target_pcts should equal 1
+
+    # Round down to elminate rounding error in subsequent calculations which may trigger unwanted assertion errors
+    cash = int(cash)
+    # The sum of target_pcts should equal 1
     assert round(sum(target_pcts)) == 1, 'sum of target % allocations do not equal zero'
 
     # Create DataFrame
     df = pd.DataFrame({'target%':target_pcts,'current_value':current_values})
 
     # Create calculated columns which will be used by the allocation methods below.
-        # note that target values reflect cash as shown in calculation
+        # Note that target values reflect cash as shown in calculation
     df['current%'] = df['current_value'] / df['current_value'].sum()
     df['target_value'] = df['target%'] * (df['current_value'].sum()+cash)
     df['deficit'] = df['target_value'] - df['current_value']
     df['error'] = (df['current_value'] / df['current_value'].sum()) - df['target%']
 
-    # create 'rank column' to reflect rankings of deficits (i.e., discrepancies between the target and current values)
-        # rankings are made in descending order such that the largest deficit gets a rank of 0
+    # Create 'rank column' to reflect rankings of deficits (i.e., discrepancies between the target and current values)
+        # Rankings are made in descending order such that the largest deficit gets a rank of 0
     df['rank'] = df['deficit'].rank(method='first',ascending=False).astype(int)-1
 
-    # having the dataframe sorted by rank makes calculations subsequent easier to interpret
+    # Having the dataframe sorted by rank makes calculations subsequent easier to interpret
     df.sort_values(by='rank',inplace=True)
 
 
