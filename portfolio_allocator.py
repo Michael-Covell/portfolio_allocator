@@ -36,6 +36,11 @@ def portfolio_allocator(cash,current_values,target_pcts):
     # Having the dataframe sorted by rank makes calculations subsequent easier to interpret
     df.sort_values(by='rank',inplace=True)
 
+    # Reorder columns
+    for label in reversed(('rank','deficit','error','current_value','target_value','current%','target%')):
+        extracted_col = df.pop(label)
+        df.insert(0, label, extracted_col)
+
 
     # Method 1: allocate-by-rank
     # This method allocates cash to completely eliminate the deficits in rank order untill the cash is gone.  For example, if the cash is \\$3 and the two top ranking deficits are each \\$2, 
