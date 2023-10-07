@@ -97,28 +97,25 @@ def portfolio_allocator(cash,current_values,target_pcts):
     cv = df['current_value'].to_list()
     t_pct = df['target%'].to_list()
     deficit = df['deficit'].to_list()
-    select_ranks = [i for i in range(len(df)) if deficit[i]>0]
-    iteration = 1
+    ranks_select = [i for i in range(len(df)) if deficit[i]>0]
     success = False
     
     while not success:
         #Calculate equal errors
-        select_cv = sum([cv[i] for i in select_ranks])
-        select_t_pct = sum([t_pct[i] for i in select_ranks])
-        select_ranks_cnt = len(select_ranks)
-        e = 1/select_ranks_cnt * ((select_cv + cash)/(sum(cv) + cash) - select_t_pct)
+        cv_select = sum([cv[i] for i in ranks_select])
+        t_pct_select = sum([t_pct[i] for i in ranks_select])
+        cnt = len(ranks_select)
+        e = 1/cnt * ((cv_select + cash)/(sum(cv) + cash) - t_pct_select)
     
         # Calculate cash allocations in a dictionary where keys are ranks and values are allotments
         # The equation for each allotment is derived from the system of equations presented above
-        allotments = {i:((e + t_pct[i])*(sum(cv)+cash)) - cv[i] if i in select_ranks else 0 for i in range(len(df))}
-        display(allotments)
+        allotments = {i:((e + t_pct[i])*(sum(cv)+cash)) - cv[i] if i in ranks_select else 0 for i in range(len(df))}
     
         # Check if the non-negative constraint is satisfied
         if all(val >= 0 for val in allotments.values()):
             success = True
         else:
-            select_ranks = [rank for rank,allotment in allotments.items() if allotment > 0]
-            iteration += 1
+            ranks_select = [rank for rank,allotment in allotments.items() if allotment > 0]
     
     # Create column containing allotments calculated via Method 2
     df['allocate_for_minimal_errors'] = df.apply(lambda r: allotments[r['rank']],axis=1)
