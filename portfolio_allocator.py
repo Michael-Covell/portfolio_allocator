@@ -6,14 +6,14 @@ def portfolio_allocator(cash,current_values,target_pcts):
     Allocate a given amount of cash to a portfolio based on target percentages.
     
     Parameters:
-        - cash (int): The amount of cash available for allocation.
-        - current_values (list or array-like): Current values of each investment in the portfolio.
-        - target_pcts (list or array-like): Target percentages for each investment in the portfolio. 
+      - cash (int): The amount of cash available for allocation.
+      - current_values (list or array-like): Current values of each investment in the portfolio.
+      - target_pcts (list or array-like): Target percentages for each investment in the portfolio. 
           The sum of target percentages should equal 1.
     
     Returns:
-        pandas.DataFrame: A DataFrame containing allocation details, including target percentages, current percentages,
-        target values, current values, ranks, deficits, errors, and allotments from two allocation methods.
+      pandas.DataFrame: A DataFrame containing allocation details, including target percentages, current percentages,
+      target values, current values, ranks, deficits, errors, and allotments from two allocation methods.
     
         Columns in the Returned DataFrame:
         - 'target%' (float): Target percentage allocation for each investment.
@@ -29,15 +29,15 @@ def portfolio_allocator(cash,current_values,target_pcts):
         - 'error_m2' (float): Allocation error of new percentages if allocate-for-minimal-errors (i.e., Method 2) allotments were made.
     
     Allotment Calculation Methods:
-        1. Allocate-by-Rank: Cash is allocated to eliminate deficits in descending order of their ranks.
-        2. Allocate-for-Minimal-Errors: Cash is allocated to minimize allocatoin error in the portfolio.
+      1. Allocate-by-Rank: Cash is allocated to eliminate deficits in descending order of their ranks.
+      2. Allocate-for-Minimal-Errors: Cash is allocated to minimize allocatoin error in the portfolio.
     
     
     Example:
-     cash = 1000
-     current_values = [500, 300, 200]
-     target_pcts = [0.4, 0.4, 0.2]
-     result_df = portfolio_allocator(cash, current_values, target_pcts)
+      cash = 1000
+      current_values = [500, 300, 200]
+      target_pcts = [0.4, 0.4, 0.2]
+      result_df = portfolio_allocator(cash, current_values, target_pcts)
     """
     
     
