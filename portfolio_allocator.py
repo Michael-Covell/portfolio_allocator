@@ -1,12 +1,40 @@
-# The function below takes 3 arguments:
-# - `cash` is the money to be allocated to investments
-# - `target_pcts` are the set of target allocations specified as proportions that sum to 1 (minus rounding error)
-# - `current_values` are the current values of the investments in the portfolio
-# 
-# The utility of the portfolio allocation methods will vary depending on the inputs.  
-# Sometimes, portfolio allocation is so straightforward, it requires little-to-no math.  
-# Other times, portfolio allocation can require advanced methods.  
-# The methods presented here are most useful when there are significant discrepancies between current and target values across many but not all investments, and there is a large amount of `cash` to allocate but not enough meet all target values.
+"""
+Allocate a given amount of cash to a portfolio based on target percentages.
+
+Parameters:
+    - cash (int): The amount of cash available for allocation.
+    - current_values (list or array-like): Current values of each investment in the portfolio.
+    - target_pcts (list or array-like): Target percentages for each investment in the portfolio. 
+      The sum of target percentages should equal 1.
+
+Returns:
+    pandas.DataFrame: A DataFrame containing allocation details, including target percentages, current percentages,
+    target values, current values, ranks, deficits, errors, and allotments from two allocation methods.
+
+    Columns in the Returned DataFrame:
+    - 'target%' (float): Target percentage allocation for each investment.
+    - 'current%' (float): Current percentage allocation for each investment.
+    - 'target_value' (float): Target value for each investment based on target percentages.
+    - 'current_value' (float): Current value of each investment.
+    - 'rank' (int): Rank of deficits in descending order.
+    - 'deficit' (float): Difference between target value and current value.
+    - 'error' (float): Difference between target percentage and current percentage, i.e., allocation error.
+    - 'allocate_by_rank' (float): Allotment amount for each investment using the allocate-by-rank method.
+    - 'error_m1' (float): Allocation error of new percentages if allocate-by-rank (i.e., Method 1) allotments were made.
+    - 'allocate_for_minimal_errors' (float): Allotment amount for each investment using the allocate-for-minimal-errors method.
+    - 'error_m2' (float): Allocation error of new percentages if allocate-for-minimal-errors (i.e., Method 2) allotments were made.
+
+Allotment Calculation Methods:
+    1. Allocate-by-Rank: Cash is allocated to eliminate deficits in descending order of their ranks.
+    2. Allocate-for-Minimal-Errors: Cash is allocated to minimize allocatoin error in the portfolio.
+
+
+Example:
+ cash = 1000
+ current_values = [500, 300, 200]
+ target_pcts = [0.4, 0.4, 0.2]
+ result_df = portfolio_allocator(cash, current_values, target_pcts)
+"""
 
 import pandas as pd
 import numpy as np
