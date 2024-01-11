@@ -16,4 +16,5 @@ An Apps Script file containing a custom function has been added to this reposito
 ### Resources
 
 * [Purpose and Uses of portfolio_allocator](purpose_and_uses.md)
-* [A Guided Tour of portfolio_allocator](portfolio_allocator_tour.md)
+* [A Guided Tour of portfolio_allocator](portfolio_allocator_tour.ipynb)
+* [Custom Function in Apps Script for Google Sheets Implementation](allotment_calculator_custom_function.gs)
